@@ -1,6 +1,9 @@
 services:
   postiz:
-    image: ghcr.io/gitroomhq/postiz-app:latest
+    # Pinned deliberately: `latest` lets any redeploy silently jump versions.
+    # Upgrades are a one-line change here so they are reviewed and reversible.
+    # v2.22.1 (2026-07-25); v2.21.7 and v2.21.8 carry security advisories.
+    image: ghcr.io/gitroomhq/postiz-app:v2.22.1
     container_name: postiz
     restart: always
     environment:
@@ -112,6 +115,15 @@ services:
       - postiz-uploads:/uploads/
     ports:
       - "4007:5000"
+    labels:
+      # This container sits on three networks (postiz-network, temporal-network
+      # and the Coolify-injected project network). Without an explicit pin,
+      # Traefik picks the backend IP from an unordered map, and any pick other
+      # than the Coolify network is unreachable from coolify-proxy: the SYN is
+      # dropped, Traefik hits its 30s dial timeout and returns 504 while nothing
+      # reaches nginx. It clears itself on the next config rebuild, so it looks
+      # like a random glitch. Incident 2026-07-29 on post.marsai.co.uk.
+      - "traefik.docker.network=i8shvez3yz0iirifwe4gbou6"
     networks:
       - postiz-network
       - temporal-network
