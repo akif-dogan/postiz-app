@@ -227,6 +227,12 @@ services:
       - ES_SEEDS=temporal-elasticsearch
       - ES_VERSION=v7
       - TEMPORAL_NAMESPACE=default
+      # Coolify attaches every container to its project network on top of the
+      # compose networks. auto-setup otherwise binds gRPC to whichever single
+      # interface it resolves first, while Docker DNS hands `temporal` out as
+      # the other address, so postiz gets ECONNREFUSED on 7233 and the backend
+      # never starts. Binding all interfaces makes the pairing deterministic.
+      - BIND_ON_IP=0.0.0.0
     networks:
       - temporal-network
     volumes:
