@@ -1,6 +1,9 @@
 services:
   postiz:
-    image: ghcr.io/gitroomhq/postiz-app:latest
+    # Pinned deliberately: `latest` lets any redeploy silently jump versions.
+    # Upgrades are a one-line change here so they are reviewed and reversible.
+    # v2.22.1 (2026-07-25); v2.21.7 and v2.21.8 carry security advisories.
+    image: ghcr.io/gitroomhq/postiz-app:v2.22.1
     container_name: postiz
     restart: always
     environment:
